@@ -1,1 +1,3 @@
-# edge_device_init
+# Edge Device Initialization
+
+Documentation for the collection.

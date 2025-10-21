@@ -42,11 +42,10 @@
   ansible.builtin.apt:
     deb: /tmp/ros2-apt-source.deb
     update_cache: yes
-- name: Install ros-humble-desktop
+- name: Install ros-humble-desktop and ros-humble-turtlesim
   ansible.builtin.apt:
-    name: ros-humble-desktop
+    name:
+      - ros-humble-desktop
+      - ros-humble-turtlesim
     state: present
     update_cache: yes
-  environment:
-    TZ: "Asia/Seoul"
-    DEBIAN_FRONTEND: "noninteractive"

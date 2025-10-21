@@ -15,3 +15,38 @@
       - en_US
       - en_US.UTF-8
     state: present
+- name: Enable Ubuntu Universe repository
+  ansible.builtin.apt:
+    name:
+      - software-properties-common
+    state: present
+    update_cache: yes
+- name: Add Universe repository
+  ansible.builtin.command:
+    cmd: add-apt-repository universe -y
+- name: Get latest ROS APT source version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest
+    method: GET
+    return_content: true
+  register: ros_apt_source_release
+- name: Set ROS_APT_SOURCE_VERSION fact
+  ansible.builtin.set_fact:
+    ROS_APT_SOURCE_VERSION: "{{ ros_apt_source_release.json.tag_name }}"
+- name: Download ros2-apt-source deb
+  ansible.builtin.get_url:
+    url: "https://github.com/ros-infrastructure/ros-apt-source/releases/download/{{ ROS_APT_SOURCE_VERSION }}/ros2-apt-source_{{ ROS_APT_SOURCE_VERSION }}.{{ ansible_lsb.codename }}_all.deb"
+    dest: /tmp/ros2-apt-source.deb
+    mode: '0644'
+- name: Install ros2-apt-source deb package
+  ansible.builtin.apt:
+    deb: /tmp/ros2-apt-source.deb
+    update_cache: yes
+- name: Install ros-humble-desktop
+  ansible.builtin.apt:
+    name: ros-humble-desktop
+    state: present
+    update_cache: yes
+  environment:
+    TZ: "Asia/Seoul"
+    DEBIAN_FRONTEND: "noninteractive"

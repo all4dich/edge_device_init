@@ -3,3 +3,6 @@
   hosts: all
   roles:
     - role: deepx_v3.init_dev.enable_dev_env
+      become: true
+    - role: deepx_v3.init_dev.install_ros2_humble
+      become: true

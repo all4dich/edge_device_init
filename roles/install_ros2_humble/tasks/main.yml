@@ -1,0 +1,17 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+   update_cache: yes
+- name: Install locales
+  ansible.builtin.apt:
+    name:
+      - locales
+    state: present
+    update_cache: yes
+- name: Ensure required locales - en_US and en_US.UTF-8
+  community.general.locale_gen:
+    name:
+      - en_US
+      - en_US.UTF-8
+    state: present

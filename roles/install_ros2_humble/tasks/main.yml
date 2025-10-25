@@ -24,6 +24,9 @@
 - name: Add Universe repository
   ansible.builtin.command:
     cmd: add-apt-repository universe -y
+  when:
+    - ansible_facts['distribution'] == "Ubuntu"
+    - ansible_facts['distribution_version'] == "22.04"
 - name: Get latest ROS APT source version
   ansible.builtin.uri:
     url: https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest

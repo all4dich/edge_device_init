@@ -1,0 +1,35 @@
+---
+# Install Node.js using NVM(Node Version Manager)
+- name: Ensure curl is installed
+  ansible.builtin.shell: which curl
+  register: curl_check
+- name: Download and install NVM
+  ansible.builtin.shell: |
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash
+  args:
+    creates: /home/{{ ansible_facts['user_id'] }}/.nvm/nvm.sh
+  environment:
+    NVM_VERSION: "{{ lookup('env', 'NVM_VERSION') | default('v0.39.4') }}"
+- name: Load NVM and install Node.js LTS version
+  ansible.builtin.shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm install ${NODE_VERSION}
+    nvm use ${NODE_VERSION}
+  args:
+    executable: /bin/bash
+  environment:
+    NODE_VERSION: "{{ lookup('env', 'NODE_VERSION') | default('--lts') }}"
+    HOME: /home/{{ ansible_facts['user_id'] }}
+    USER: "{{ ansible_facts['user_id'] }}"
+- name: Verify Node.js installation
+  ansible.builtin.shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    node -v
+    npm -v
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: /home/{{ ansible_facts['user_id'] }}
+    USER: "{{ ansible_facts['user_id'] }}"

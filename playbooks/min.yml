@@ -1,0 +1,10 @@
+---
+- name: Initialize Deep v3 development environment
+  hosts: all
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    TZ: Asia/Seoul
+  roles:
+    - role: general.init_dev.enable_dev_env
+      become: true
+    - role: general.init_dev.install_nvm

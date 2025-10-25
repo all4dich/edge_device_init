@@ -12,5 +12,5 @@ cd edge_device_init
 2. Run the Ansible playbook:
 ```bash
 ansible-galaxy collection install . --force
-ansible-playbook deepx_v3.init_dev.run -i hosts -k -K
+ansible-playbook general.init_dev.run -i hosts -k -K
 ```

@@ -5,6 +5,6 @@ all:
 #            ansible_port: 30020
 #            ansible_user: ubuntu
         blue_angels:
-            ansible_host: blue_angels
-            ansible_port: 22
+            ansible_host: localhost
+            ansible_port: 30020
             ansible_user: ubuntu

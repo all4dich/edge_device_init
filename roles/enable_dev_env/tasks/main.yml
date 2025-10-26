@@ -1,8 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Update /etc/apt/sources.list for ubuntu 22.04 for ARM
+- name: Update /etc/apt/sources.list.aarch64 for ubuntu 22.04 for ARM
   ansible.builtin.copy:
-    src: sources.list
+    src: sources.list.aarch64
     dest: /etc/apt/sources.list
     owner: root
     group: root
@@ -11,6 +11,7 @@
   when:
     - ansible_facts['distribution'] == "Ubuntu"
     - ansible_facts['distribution_version'] == "22.04"
+    - ansible_facts['architecture'] == "aarch64"
 - name: Update apt cache
   ansible.builtin.apt:
    update_cache: yes

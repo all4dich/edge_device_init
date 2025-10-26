@@ -9,3 +9,4 @@
       become: true
     - role: general.init_dev.install_nvm
     - role: general.init_dev.install_nvim_env
+    - role: general.init_dev.install_golang

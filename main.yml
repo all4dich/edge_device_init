@@ -1,0 +1,11 @@
+---
+- hosts: all
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    TZ: Asia/Seoul
+  roles:
+    - role: enable_dev_env
+      become: true
+    - role: install_nvm
+    - role: install_nvim_env
+    - role: install_golang

@@ -1,5 +1,10 @@
 ---
 # Install Golang and set up environment
+- name: Create $HOME/.local directory
+  ansible.builtin.shell: |
+    mkdir -p $HOME/.local
+  args:
+    creates: $HOME/.local
 - name: Get system information
   ansible.builtin.set_fact:
     system: "{{ ansible_facts['system'] | lower }}"
@@ -16,6 +21,9 @@
 - name: Get Golang version information
   ansible.builtin.set_fact:
     golang_version: "{{ lookup('env', 'GOLANG_VERSION') | default('1.25.3', true) }}"
+- name: Get Bazel version information
+  ansible.builtin.set_fact:
+    bazel_version: "{{ lookup('env', 'BAZEL_VERSION') | default('7.6.2', true) }}"
 - name: Set Golang binary download url
   ansible.builtin.set_fact:
     golang_url: "https://go.dev/dl/go{{ golang_version }}.{{ system }}-{{ architecture }}.tar.gz"
@@ -35,4 +43,27 @@
     remote_src: yes
 - name: Add Golang path to the environment file
   ansible.builtin.shell: |
-    echo 'export PATH=${HOME}/.local/go/bin:${PATH}' >> ~/.bashrc
+    echo 'export PATH=${HOME}/.local/go/bin:${HOME}/.local/bin:${PATH}' >> ~/.bashrc
+- name: Get Bazel architecture information
+  ansible.builtin.set_fact:
+    bazel_architecture: >-
+      {%- if ansible_facts['architecture'] | lower in ['x86_64', 'amd64'] -%}
+      x86_64 
+      {%- elif ansible_facts['architecture'] | lower in ['aarch64', 'arm64'] -%}
+      arm64
+      {%- else -%}
+      {{ ansible_facts['architecture'] | lower }}
+      {%- endif -%}
+- name: Set Bazel download url
+  ansible.builtin.set_fact:
+    bazel_url: "https://github.com/bazelbuild/bazel/releases/download/{{ bazel_version }}/bazel-{{ bazel_version }}-{{ system }}-{{ bazel_architecture }}"
+- name: Download Bazel binary
+  ansible.builtin.get_url:
+    url: "{{ bazel_url }}"
+    dest: "/tmp/bazel-{{ bazel_version }}-{{ system }}-{{ bazel_architecture }}"
+    mode: '0755'
+    backup: true
+- name: Install Bazel to $HOME/.local/bin
+  ansible.builtin.shell: |
+    mkdir -p $HOME/.local/bin
+    mv /tmp/bazel-{{ bazel_version }}-{{ system }}-{{ bazel_architecture }} ${HOME}/.local/bin/bazel

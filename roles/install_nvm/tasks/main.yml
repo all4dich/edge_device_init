@@ -5,11 +5,12 @@
   register: curl_check
 - name: Download and install NVM
   ansible.builtin.shell: |
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash
+    rm -rf ~/.nvm
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | /bin/bash
   args:
     creates: /home/{{ ansible_facts['user_id'] }}/.nvm/nvm.sh
   environment:
-    NVM_VERSION: "{{ lookup('env', 'NVM_VERSION') | default('v0.39.4') }}"
+    NVM_VERSION: "{{ lookup('env', 'NVM_VERSION') | default('v0.39.4', true) }}"
 - name: Load NVM and install Node.js LTS version
   ansible.builtin.shell: |
     export NVM_DIR="$HOME/.nvm"
@@ -19,7 +20,7 @@
   args:
     executable: /bin/bash
   environment:
-    NODE_VERSION: "{{ lookup('env', 'NODE_VERSION') | default('--lts') }}"
+    NODE_VERSION: "{{ lookup('env', 'NODE_VERSION') | default('--lts', true) }}"
     HOME: /home/{{ ansible_facts['user_id'] }}
     USER: "{{ ansible_facts['user_id'] }}"
 - name: Verify Node.js installation

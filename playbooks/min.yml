@@ -1,5 +1,5 @@
 ---
-- name: Initialize Deep v3 development environment
+- name:  Initialize the development environment for Linux-based systems
   hosts: all
   environment:
     DEBIAN_FRONTEND: noninteractive
@@ -8,3 +8,4 @@
     - role: general.init_dev.enable_dev_env
       become: true
     - role: general.init_dev.install_nvm
+    - role: general.init_dev.install_nvim_env

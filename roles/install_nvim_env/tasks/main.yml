@@ -1,0 +1,100 @@
+---
+# Install Neovim environment with IDE
+- name: Ensure all required packages are installed
+  become: true
+  ansible.builtin.apt:
+    name:
+      - npm
+      - ripgrep
+      - fzf
+      - fd-find
+      - bear
+      - ssh
+      - keychain
+      - make
+      - cmake
+      - python3-cryptography
+      - clang-format
+      - automake
+      - autoconf
+      - pkg-config
+      - python3-pip
+      - clang
+      - libtool-bin
+      - npm
+      - curl
+      - build-essential
+      - unzip
+      - gettext
+      - ninja-build
+      - clang-tidy
+      - yacc
+      - libevent-dev
+      - bison
+      - libncurses-dev
+      - libsqlite3-dev
+      - libjansson-dev
+    state: present
+    update_cache: yes
+- name: Install universal-ctags
+  ansible.builtin.shell: |
+    mkdir -p ~/.local/src; cd ~/.local/src
+    git clone https://github.com/universal-ctags/ctags.git --depth=1
+    cd ctags
+    ./autogen.sh
+    ./configure --prefix=$HOME/.local/
+    make
+    make install
+  args:
+    creates: $HOME/.local/bin/ctags
+- name: Install tmux
+  ansible.builtin.shell: |
+    cd ~/.local/src
+    git clone https://github.com/tmux/tmux.git
+    cd tmux
+    ./autogen.sh
+    ./configure --prefix=${HOME}/.local \ 
+    CFLAGS="-I${HOME}/.local/include \
+    -I${HOME}/.local/include/ncurses" \
+    LDFLAGS="-L${HOME}/.local/include \
+    -L${HOME}/.local/include/ncurses -L${HOME}/.local/lib"
+    make && make install
+  args:
+    creates: $HOME/.local/bin/tmux
+- name: Install tpm (tmux plugin manager)
+  ansible.builtin.shell: |
+    cd
+    wget https://raw.githubusercontent.com/guru245/dotfiles/refs/heads/main/.tmux.conf
+    wget https://raw.githubusercontent.com/guru245/dotfiles/refs/heads/main/truecolor-test
+    cd ~/.local/src
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  args:
+    creates: $HOME/.tmux/plugins/tpm
+- name: Install misc packages for Neovim
+  ansible.builtin.shell: |
+    ln -s $(which fdfind) ~/.local/bin/fd
+  args:
+    creates: $HOME/.local/bin/fd
+- name: Install Neovim
+  ansible.builtin.shell: |
+    cd ~/.local/src
+    git clone https://github.com/neovim/neovim
+    cd neovim
+    git checkout tags/v0.11.3
+    make distclean
+    make deps
+    make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=${HOME}/.local" CMAKE_BUILD_TYPE=Release
+    rm -rf $VIMRUNTIME
+    make install
+    pip3 install pynvim
+  args:
+    creates: $HOME/.local/bin/nvim
+- name: Install Kickstart
+  ansible.builtin.shell: |
+    cd ~/.local/src
+    git clone https://github.com/all4dich/kickstart.nvim.git
+    cd
+    mkdir .config
+    ln -s ~/.local/src/kickstart.nvim ~/.config/nvim
+  args:
+    creates: $HOME/.config/nvim

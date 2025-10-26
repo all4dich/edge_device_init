@@ -1,0 +1,38 @@
+---
+# Install Golang and set up environment
+- name: Get system information
+  ansible.builtin.set_fact:
+    system: "{{ ansible_facts['system'] | lower }}"
+- name: Get architecture information
+  ansible.builtin.set_fact:
+    architecture: >-
+      {%- if ansible_facts['architecture'] | lower in ['x86_64', 'amd64'] -%}
+      amd64
+      {%- elif ansible_facts['architecture'] | lower in ['aarch64', 'arm64'] -%}
+      arm64
+      {%- else -%}
+      {{ ansible_facts['architecture'] | lower }}
+      {%- endif -%}
+- name: Get Golang version information
+  ansible.builtin.set_fact:
+    golang_version: "{{ lookup('env', 'GOLANG_VERSION') | default('1.25.3', true) }}"
+- name: Set Golang binary download url
+  ansible.builtin.set_fact:
+    golang_url: "https://go.dev/dl/go{{ golang_version }}.{{ system }}-{{ architecture }}.tar.gz"
+- name:  Download Golang binary
+  ansible.builtin.get_url:
+    url: "{{ golang_url }}"
+    dest: "/tmp/go{{ golang_version }}.{{ system }}-{{ architecture }}.tar.gz"
+    mode: '0755'
+    backup: true
+- name: Remove $HOME/.local/go
+  ansible.builtin.shell: |
+    rm -rf $HOME/.local/go
+- name: Extract Golang binary to the target directory ( $HOME/.local )
+  ansible.builtin.unarchive:
+    src: "/tmp/go{{ golang_version }}.{{ system }}-{{ architecture }}.tar.gz"
+    dest: "$HOME/.local"
+    remote_src: yes
+- name: Add Golang path to the environment file
+  ansible.builtin.shell: |
+    echo 'export PATH=${HOME}/.local/go/bin:${PATH}' >> ~/.bashrc

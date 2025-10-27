@@ -34,6 +34,7 @@
       - libncurses-dev
       - libsqlite3-dev
       - libjansson-dev
+      - libreadline-dev
     state: present
     update_cache: yes
 - name: Install universal-ctags
@@ -43,7 +44,8 @@
     cd ctags
     ./autogen.sh
     ./configure --prefix=$HOME/.local/
-    make
+    export J=$(( $(nproc) / 2 ))
+    make -j$J
     make install
   args:
     creates: $HOME/.local/bin/ctags
@@ -58,7 +60,8 @@
     -I${HOME}/.local/include/ncurses" \
     LDFLAGS="-L${HOME}/.local/include \
     -L${HOME}/.local/include/ncurses -L${HOME}/.local/lib"
-    make && make install
+    export J=$(( $(nproc) / 2 ))
+    make -j${J} && make install
   args:
     creates: $HOME/.local/bin/tmux
 - name: Install tpm (tmux plugin manager)
@@ -83,7 +86,8 @@
     git checkout tags/v0.11.3
     make distclean
     make deps
-    make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=${HOME}/.local" CMAKE_BUILD_TYPE=Release
+    export J=$(( $(nproc) / 2 ))
+    make -j${J} CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=${HOME}/.local" CMAKE_BUILD_TYPE=Release
     rm -rf $VIMRUNTIME
     make install
     pip3 install pynvim

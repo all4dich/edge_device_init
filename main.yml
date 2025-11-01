@@ -4,6 +4,7 @@
     DEBIAN_FRONTEND: noninteractive
     TZ: Asia/Seoul
   roles:
+    - role: upload_ssh_key
     - role: enable_dev_env
       become: true
     - role: install_nvm

@@ -1,0 +1,29 @@
+---
+- name: Prompt for ssh public key file path variable
+  ansible.builtin.debug:
+    msg: |
+      ## You can provide the ssh public key file path using the variable 'key_file_path_user'
+      ## Example: 
+      ## ansible-playbook playbook.yml -e "key_file_path_user=/home/user/.ssh/id_rsa.pub"
+  run_once: true
+  delegate_to: localhost
+
+- name: Request a user to input the ssh public key file path
+  ansible.builtin.pause:
+    prompt: "\n## Enter key file path"
+  register: key_file_path
+  run_once: true
+  delegate_to: localhost
+  when: key_file_path_user is not defined
+
+- name: Consolidate user input into key_file_path
+  ansible.builtin.set_fact:
+    key_file_path: "{{ key_file_path_user | default(key_file_path['user_input']) }}"
+  run_once: true
+  delegate_to: localhost
+
+- name: Upload ssh public key to the remote
+  ansible.builtin.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ lookup('file', key_file_path) }}"

@@ -1,0 +1,17 @@
+---
+- name: Request a user to input the ssh public key file path
+  ansible.builtin.pause:
+    prompt: "\n## Enter key file path"
+  register: key_file_path
+  run_once: true
+  delegate_to: localhost
+
+- name: Check the user input for the ssh public key file path
+  ansible.builtin.debug:
+    msg: "{{ key_file_path['user_input'] }}"
+
+- name: Upload ssh public key to the remote
+  ansible.builtin.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ lookup('file', key_file_path['user_input']) }}"

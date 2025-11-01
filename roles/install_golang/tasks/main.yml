@@ -1,5 +1,8 @@
 ---
 # Install Golang and set up environment
+- name: Print Golang installation start message
+  ansible.builtin.debug:
+    msg: "Starting Golang installation for user {{ ansible_user }}, not for the system-wide."
 - name: Create $HOME/.local directory
   ansible.builtin.shell: |
     mkdir -p $HOME/.local
